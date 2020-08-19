@@ -21,7 +21,7 @@
                 </el-form-item>
                 <!--按钮区-->
                 <el-form-item class="btns">
-                    <el-button type="primary" @click="login" @keyup.enter="login">Log in</el-button>
+                    <el-button type="primary" @click="login">Log in</el-button>
                     <el-button type="info" @click="resetLoginForm">reset</el-button>
                 </el-form-item>
             </el-form>
@@ -77,12 +77,14 @@
                     this.$http.post('login', this.loginForm)
                         .then(response => {
                             if (response.data.meta.status != 200) {
-                                this.$message.warning("登录失败了 闸总");
+                                this.$message.warning("登录失败了 闸总")
                             } else {
                                 // console.log(response.data.data.token);
-                                this.$message.success("登录成功 wdnmd");
-                                window.sessionStorage.setItem("token", response.data.data.token);
+                                this.$message.success("登录成功 wdnmd")
+                                window.sessionStorage.setItem("token", response.data.data.token)
+                                window.sessionStorage.setItem("username", response.data.data.username)
                                 this.$router.push('/home')
+                                // console.log(response.data.data.username);
                             }
                         }, error => {
                             console.log(error);
