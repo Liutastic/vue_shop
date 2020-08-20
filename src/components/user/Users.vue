@@ -58,7 +58,7 @@
                                            @click="removeUserById(scope.row.id)"></el-button>
                             </el-tooltip>
                             <el-tooltip effect="dark" content="分配角色" pterable="false">
-                                <el-button size="mini" type="warning" icon="el-icon-user"></el-button>
+                                <el-button @click="setRole(scope.row)" size="mini" type="warning" icon="el-icon-user"></el-button>
                             </el-tooltip>
 
                         </template>
@@ -128,6 +128,30 @@
                     <el-button type="primary" @click="updateUserInfo">确 定</el-button>
                 </span>
             </el-dialog>
+            //用户分配权限对话框
+            <el-dialog
+                    title="分配角色"
+                    :visible.sync="setRoleDialogVisible"
+                    width="50%">
+                <div>
+                    <p>当前用户为：{{userInfo.username}}</p>
+                    <p>当前用户角色为：{{userInfo.role_name}}</p>
+                    <p>重新分配角色为：
+                        <el-select v-model="selectedRoleId" placeholder="请选择">
+                            <el-option
+                                    v-for="item in rolesList"
+                                    :key="item.id"
+                                    :label="item.roleName"
+                                    :value="item.id">
+                            </el-option>
+                        </el-select>
+                    </p>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @close="setRoleDialogClosed" @click="setRoleDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="setRoleofUser">确 定</el-button>
+                </span>
+            </el-dialog>
         </el-card>
     </div>
 </template>
@@ -193,10 +217,16 @@
                         {validator: checkMobile, trigger: 'blur'}
                     ]
                 },
-                // 控制添加用户对话框的显示或者隐
+                // 控制添加用户对话框的显示或者隐cang
                 addDialogVisible: false,
                 updateDialogVisible: false,
+                setRoleDialogVisible: false,
                 userList: [],
+                userInfo:[],
+                //所有角色的数据列表
+                rolesList:[],
+                //已选中的角色值
+                selectedRoleId:'',
                 total: 0
             }
         },
@@ -287,7 +317,7 @@
                         console.log(error);
                     })
             },
-            // 修改用户信息！
+            // 修改用户信息！!!!!
             updateUserInfo: function () {
                 this.$refs.updateFormRef.validate(valid => {
                     if (!valid) return
@@ -328,6 +358,36 @@
                     this.$message.info('取消删除')
                 })
             },
+
+            setRole:function (userInfo) {
+                this.userInfo = userInfo
+                this.$http.get(`roles`)
+                .then(response=>{
+                    if(response.data.meta.status !== 200) return this.$message.error('获取角色列表失败！')
+                    this.rolesList = response.data.data
+                }).catch(error=>error)
+                this.setRoleDialogVisible = true
+            },
+            setRoleofUser:function () {
+                if(!this.selectedRoleId){
+                    return this.$message.error('请选择要分配的角色')
+                }
+                console.log(this.userInfo.id) // 用户ID
+                console.log(this.rolesList)
+                this.$http.put(`users/${this.userInfo.id}/role`,
+                    {rid: this.selectedRoleId})
+                .then(response=>{
+                    if(response.data.meta.status !== 200) return this.$message.erroe('设置失败 ')
+                    this.$message.success('设置角色成功')
+                    this.getUserList()
+                    this.setRoleDialogVisible = false
+                }).catch(error=>error)
+            },
+            setRoleDialogClosed:function(){
+                this.selectedRoleId = ''
+                this.userInfo = {}
+            }
+
         }
     }
 </script>
