@@ -6,8 +6,12 @@ import './assets/fonts/iconfont.css'
 import './assets/css/global.css'
 import './plugins/element.js'
 import axios from 'axios'
+import TreeTable from 'vue-table-with-tree-grid'
 
 Vue.config.productionTip = false
+
+Vue.component('tree-table', TreeTable)
+
 Vue.prototype.$http = axios
 //config是请求的对象，包含很多属性
 axios.interceptors.request.use(config => {
