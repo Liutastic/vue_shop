@@ -345,7 +345,7 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then(() => {
-                    console.log(userId);
+                    // console.log(userId);
                     this.$http.delete('users/'+userId)
                         .then(response => {
                             if(response.data.meta.status !== 200) return console.log(response)
